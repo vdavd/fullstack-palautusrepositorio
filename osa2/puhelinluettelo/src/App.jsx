@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
-const Persons = ({persons}) => {
+const Persons = ({persons, handleClick}) => {
   return (
     <ul>
-      {persons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
+      {persons.map(person => <li key={person.name}>{person.name} {person.number} <button onClick={() => handleClick(person)}>delete</button></li>)}
     </ul>
 )}
 
@@ -35,8 +35,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
+    personService
+      .getAll()
       .then(response => {
         setPersons(response.data)
       })
@@ -48,12 +48,42 @@ const App = () => {
     event.preventDefault()
 
     if (persons.map(person => person.name).includes(newName)) {
-      alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        changeNumber()
+      } else {
+        return
+      }
     } else {
       const newPerson = {name: newName, number: newNumber}
-      setPersons(persons.concat(newPerson))
+      personService
+        .create(newPerson)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+        })
       setNewName('')
       setNewNumber('')
+    }
+  }
+
+  const changeNumber = () => {
+    const person = persons.find(p => p.name === newName)
+    const changedPerson = {...person, number: newNumber}
+
+    personService
+      .update(changedPerson.id, changedPerson)
+      .then(response => {
+        setPersons(persons.map(person => person.id !== changedPerson.id ? person : response.data))
+      })
+      
+  }
+
+  const deletePerson = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+      .deleteOne(person.id)
+      .then(response => {
+        setPersons(persons.filter(person => person.id != response.data.id))
+      })     
     }
   }
 
@@ -71,7 +101,7 @@ const App = () => {
       <PersonForm submitHandler={addPerson} name={newName} number={newNumber} 
         nameChangeHandler={handleNameChange} numberChangeHandler={handleNumberChange} />
       <h2>Numbers</h2>
-        <Persons persons={namesToShow}/>
+        <Persons persons={namesToShow} handleClick={deletePerson}/>
     </div>
   )
 
