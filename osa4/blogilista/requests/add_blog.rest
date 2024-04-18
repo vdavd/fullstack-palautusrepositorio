@@ -1,9 +1,10 @@
 POST http://localhost:3003/api/blogs
 Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbGxlZSIsImlkIjoiNjYxM2ZhMThkMDBjZTcxMDMxOWIyNTI4IiwiaWF0IjoxNzEyNTg1Mjc4fQ.JUeRjmkceGgmrQa4OE9v3cO1bSjQDzg43NpuYRKsis
 
 {
-    "title": "aaaaaaaaa",
-    "author": "axel",
-    "url": "eepy.com",
-    "likes": "1000"
+    "title": "jussiiii",
+    "author": "ville",
+    "url": "jksfdfsdl.com",
+    "likes": "10234"
 }
