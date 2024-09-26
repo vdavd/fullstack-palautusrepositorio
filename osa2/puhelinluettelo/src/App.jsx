@@ -78,6 +78,10 @@ const App = () => {
           setMessageType('notification')
           setMessage(`Added ${addedPerson.name}`)
         })
+        .catch(error => {
+          setMessageType('error')
+          setMessage(error.response.data.error.message)
+        })
       messageTimeout()
     }
     setNewName('')
@@ -96,21 +100,26 @@ const App = () => {
         setMessage(`Updated number of ${updatedPerson.name}`)
       })
       .catch(error => {
-        setMessageType('error')
-        setMessage(`${changedPerson.name} was already removed from server`)
-        setPersons(persons.filter(person => person.id != changedPerson.id))
+        if (error.response.data.error.name === "ValidationError") {
+          setMessageType('error')
+          setMessage(error.response.data.error.message)
+        } else if (error.response.data.error.name === "NotFoundError") {
+          setMessageType('error')
+          setMessage(`${changedPerson.name} was already removed from server`)
+          setPersons(persons.filter(person => person.id != changedPerson.id))
+        }
       })
     messageTimeout()
   }
 
-  const deletePerson = (person) => {
-    if (window.confirm(`Delete ${person.name}?`)) {
+  const deletePerson = (personToDelete) => {
+    if (window.confirm(`Delete ${personToDelete.name}?`)) {
       personService
-      .deleteOne(person.id)
-      .then(deletedPerson => {
-        setPersons(persons.filter(person => person.id != deletedPerson.id))
+      .deleteOne(personToDelete.id)
+      .then(result => {
+        setPersons(persons.filter(person => person.id != personToDelete.id))
         setMessageType('notification')
-        setMessage(`Deleted ${deletedPerson.name}`)
+        setMessage(`Deleted ${personToDelete.name}`)
       })
       messageTimeout()
     }
