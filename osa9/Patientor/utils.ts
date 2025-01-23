@@ -1,4 +1,5 @@
 import { NewPatient, Gender } from "./types";
+import { z } from "zod";
 
 const isDate = (date: string): boolean => {
   return Boolean(Date.parse(date));
@@ -61,4 +62,12 @@ const toNewPatient = (object: unknown): NewPatient => {
   throw new Error("Incorrect data: some fields are missing");
 };
 
-export default { toNewPatient };
+export const newPatientSchema = z.object({
+  name: z.string(),
+  dateOfBirth: z.string().date(),
+  ssn: z.string(),
+  gender: z.nativeEnum(Gender),
+  occupation: z.string(),
+});
+
+export default toNewPatient;
